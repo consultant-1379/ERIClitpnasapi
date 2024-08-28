@@ -1,0 +1,200 @@
+
+### sfs-service
+# the property in Set1 ("name") is mandatory, and must be unique in the domain of storage-providers.
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1"
+
+### sfs-virtual-server
+# the "name" and "ipv4address"  properties are mandatory.
+assertError --err_type MissingRequiredPropertyError --err_property "ipv4address" --err_message='ItemType "sfs-virtual-server" is required to have a property with name "ipv4address"' create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs1
+assertError --err_type MissingRequiredPropertyError --err_property "name" --err_message='ItemType "sfs-virtual-server" is required to have a property with name "name"' create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs1
+
+assertError --err_type MissingRequiredPropertyError --err_property "name" --err_message='ItemType "sfs-virtual-server" is required to have a property with name "name"' create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs1 -o ipv4address='1.1.1.1'
+assertError --err_type MissingRequiredPropertyError --err_property "ipv4address" --err_message='ItemType "sfs-virtual-server" is required to have a property with name "ipv4address"' create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs1 -o name='vs'
+
+litp create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs1 -o name='vs' ipv4address='1.1.1.1'
+litp create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs3 -o name='vs' ipv4address='1.1.1.1' ports='0,2' sharing_protocols='nfsv3,nfsv4' san_pool='pool_1' sp='spa' subnet='0.0.0.0/24' gateway='2.2.2.2' ndmp_password_key='password'
+
+
+# "ipv4address" must be a valid IPv4 address.
+assertError --err_type ValidationError --err_property "ipv4address" --err_message="Invalid value 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'. IPv4 Address must be specified" create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs2 -o name='vs' ipv4address='FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
+assertError --err_type ValidationError --err_property "ipv4address" --err_message="Invalid value 'xxx'. IPv4 Address must be specified" create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs2 -o name='vs' ipv4address='xxx'
+
+# "gateway" must be a valid IPv4 address.
+assertError --err_type ValidationError --err_property "gateway" --err_message="Invalid value 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'. IPv4 Address must be specified" create -t sfs-virtual-server -p /infrastructure/storage/storage_providers/sp1/virtual_servers/vs2 -o name='vs' ipv4address='1.1.1.1' ports='0,2' sharing_protocols='nfsv3' san_pool='pool_1' sp='spa' subnet='0.0.0.0/24' gateway='FE80:0000:0000:0000:0202:B3FF:FE1E:8329' ndmp_password_key='password'
+
+### sfs-pool
+# "name" property is mandatory
+assertError --err_type MissingRequiredPropertyError --err_property="name" --err_message='ItemType "sfs-pool" is required to have a property with name "name"' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1
+assertError --err_type ValidationError --err_property "name" --err_message='Accepts only alphanumeric characters and "-" and "_", minimum 2 maximum 31 characters' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="p"
+assertError --err_type ValidationError --err_property "name" --err_message='Accepts only alphanumeric characters and "-" and "_", minimum 2 maximum 31 characters' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="pool_-00000000000000000000000000"
+assertError --err_type ValidationError --err_property "name" --err_message='Accepts only alphanumeric characters and "-" and "_", minimum 2 maximum 31 characters' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="pool_-/"
+assertError --err_type ValidationError --err_property "name" --err_message='Accepts only alphanumeric characters and "-" and "_", minimum 2 maximum 31 characters' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="pool_-:"
+assertError --err_type ValidationError --err_property "name" --err_message='Accepts only alphanumeric characters and "-" and "_", minimum 2 maximum 31 characters' create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="p.ool"
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="pool-1_"
+
+
+### sfs-filesystem
+# "path" is mandatory
+assertError --err_type MissingRequiredPropertyError --err_property "path" --err_message='ItemType "sfs-filesystem" is required to have a property with name "path"' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1
+assertError --err_type MissingRequiredPropertyError --err_property "size" --err_message='ItemType "sfs-filesystem" is required to have a property with name "size"' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1
+assertError --err_type MissingRequiredPropertyError --err_property "path" --err_message='ItemType "sfs-filesystem" is required to have a property with name "path"' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o size="10M"
+assertError --err_type MissingRequiredPropertyError --err_property "size" --err_message='ItemType "sfs-filesystem" is required to have a property with name "size"' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path="/vx/f1"
+assertError --err_type ValidationError --err_property "path" --err_message='The file system path "" should contain alphanumeric characters, hyphens or underscores only.' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path="" size="10M"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10K'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10K"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10P'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10P"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10m'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10m"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10g'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10g"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10t'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10t"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '10'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="10"
+assertError --err_type ValidationError --err_property "size" --err_message="Invalid value '0'." create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/aaa-bbb_ccc" size="0"
+assertError --err_type ValidationError --err_property "path" --err_message='Should not be greater than 25 characters in length.' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path="/vx/0123456789012345678901" size="10M"
+assertError --err_type ValidationError --err_property "size" --err_message='Minimum value is 10M' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/-_" size="0M"
+assertError --err_type ValidationError --err_property "size" --err_message='Minimum value is 10M' create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path=" /vx/-_" size="9M"
+
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1 -o path="/vx/fffffffffff-fffff" size="10M"
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f2 -o path=" /vx/_" size="10M"
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f3 -o path=" /vx/-" size="10G"
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f4 -o path=" /vx/-_" size="10T"
+
+# unityXT filesystem creation
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f5 -o path=" /-" size="10G" data_reduction="false"
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f6 -o path=" /-" size="10G" data_reduction="true"
+
+
+### sfs-export
+# "ipv4allowed_clients" is mandatory
+assertError --err_type MissingRequiredPropertyError --err_property "options" --err_message='ItemType "sfs-export" is required to have a property with name "options"' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1
+assertError --err_type MissingRequiredPropertyError --err_property "ipv4allowed_clients" --err_message='ItemType "sfs-export" is required to have a property with name "ipv4allowed_clients"' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1
+assertError --err_type MissingRequiredPropertyError --err_property "options" --err_message='ItemType "sfs-export" is required to have a property with name "options"' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.10'
+assertError --err_type MissingRequiredPropertyError --err_property "ipv4allowed_clients" --err_message='ItemType "sfs-export" is required to have a property with name "ipv4allowed_clients"' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o options='rw'
+
+# "ipv4allowed_clients" must be a comma separated list of IPv4 addresses.
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message="Invalid value 'FE80:0000:0000:0000:0202:B3FF:FE1E:8329'" create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='FE80:0000:0000:0000:0202:B3FF:FE1E:8329' options='rw,no_root_squash'
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message="Invalid value 'xxx'" create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='xxx' options='rw,no_root_squash'
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message="Invalid value ',10.10.10.'." create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients=',10.10.10.' options='rw,no_root_squash'
+
+# The "ipv4allowed_clients" list cannot contains duplicate IPv4 addresses.
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message='IP address "10.10.10.10" is duplicated.' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.10,10.10.10.11,10.10.10.10' options='rw,no_root_squash'
+assertError --err_type ValidationError --err_property=ipv4allowed_clients --err_message="Invalid value '10.10.10.10,*'." create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.10,*' options='rw,no_root_squash'
+
+# wildcards are not allowed
+assertError --err_type ValidationError --err_property=ipv4allowed_clients --err_message="Invalid value '*'." create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='*' options='rw,no_root_squash'
+
+# white space is *NOT* allowed around commas & values
+assertError --err_type ValidationError --err_property=ipv4allowed_clients --err_message="Invalid value '10.10.10.10, 10.10.10.11, 9.9.9.9'." create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.10, 10.10.10.11, 9.9.9.9' options='rw,no_root_squash'
+
+# white space is not allowed around commas & individual tokens
+assertError --err_type ValidationError --err_property=options --err_message="Invalid value 'rw, no_root_squash'." create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.99' options='rw, no_root_squash'
+
+# only 1 from each of these pairs:
+# soft:hard, rw:ro, sync:async, secure:insecure, secure_locks:insecure_locks, root_squash:no_root_squash, wdelay:no_wdelay, subtree_check:no_subtree_check
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("rw", "ro")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='rw,ro'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("sync", "async")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='sync,async'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("secure", "insecure")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='secure,insecure'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("secure_locks", "insecure_locks")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='secure_locks,insecure_locks'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("root_squash", "no_root_squash")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='root_squash,no_root_squash'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("wdelay", "no_wdelay")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='wdelay,no_wdelay'
+assertError --err_type ValidationError --err_property "options" --err_message='Conflicting export options input. Only one option should be chosen from the following pair: ("subtree_check", "no_subtree_check")' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22' options='subtree_check,no_subtree_check'
+assertError --err_type ValidationError --err_property "options" --err_message='"invalid_option" is an invalid option.' create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='10.10.10.10' options='rw,invalid_option'
+litp create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/f1/exports/ex1 -o ipv4allowed_clients='11.11.11.22,11.22.33.44' options='rw,root_squash,secure,secure_locks,wdelay,subtree_check'
+
+
+### nfs-mount
+# Mandatory properties: "export_path", "provider", "mount_point", "network_name"
+assertError --err_type MissingRequiredPropertyError --err_property "mount_point" --err_message='ItemType "nfs-mount" is required to have a property with name "mount_point"' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1
+assertError --err_type MissingRequiredPropertyError --err_property "provider" --err_message='ItemType "nfs-mount" is required to have a property with name "provider"' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1
+assertError --err_type MissingRequiredPropertyError --err_property "network_name" --err_message='ItemType "nfs-mount" is required to have a property with name "network_name"' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1
+assertError --err_type MissingRequiredPropertyError --err_property "export_path" --err_message='ItemType "nfs-mount" is required to have a property with name "export_path"' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1
+assertError --err_message="Invalid value ''" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1 -o provider='' mount_point='' network_name='' export_path=''
+
+# Optional property: "mount_options" with a default of "defaults"
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m1 -o provider='vs' mount_point='/tmp' network_name='n' export_path='/vx/f-_'
+assertProperty /infrastructure/storage/nfs_mounts/m1 -o mount_options='defaults'
+
+# the "mount_point" must be a single valid Unix directory name.
+assertError --err_type ValidationError --err_property "mount_point" --err_message="Invalid value 'tmp'." create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m2 -o provider='vs' mount_point='tmp' network_name='n' export_path='/vx/f-_'
+assertError --err_type ValidationError --err_property "mount_point" --err_message="Invalid value './tmp'." create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m2 -o provider='vs' mount_point='./tmp' network_name='n' export_path='/vx/f-_'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m2 -o provider='vs' mount_point='/tmp/aaa' network_name='n' export_path='/vx/xxx-yyy'
+
+# "mount_options" property value is a comma separated list of known allowed tokens: some simple literals, some literals with equals sign and associated right hand value. White space is allowed around commas & values.
+# Only 1 from each of these pairs:
+# soft:hard, ac:noac, bg:fg, sharecache:nosharecache, resvport:noresvport, intr:nointr, lock:nolock, cto:nocto
+
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"soft\", \"hard\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='soft,hard'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='ac,noac'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='ac,noac'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"bg\", \"fg\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='bg,fg'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"sharecache\", \"nosharecache\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='sharecache,nosharecache'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"resvport\", \"noresvport\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='resvport,noresvport'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"intr\", \"nointr\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='intr,nointr'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"lock\", \"nolock\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='lock,nolock'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from the following pair: (\"cto\", \"nocto\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='cto,nocto'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from each of the following pairs: (\"soft\", \"hard\") and (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='soft,hard,ac,noac'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from each of the following pairs: (\"soft\", \"hard\") and (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='soft,noac,hard,ac'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from each of the following pairs: (\"soft\", \"hard\") and (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='hard,noac,ac,soft'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from each of the following pairs: (\"soft\", \"hard\") and (\"ac\", \"noac\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='hard,intr,noac,nocto,ac,soft'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Conflicting nfs mount options input. Only one option should be chosen from each of the following pairs: (\"soft\", \"hard\"), (\"ac\", \"noac\") and (\"intr\", \"nointr\")" create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='nointr,hard,intr,noac,nocto,ac,soft'
+
+
+# the following options should have a format lvalue=rvalue
+#     acregmin: numeric value
+#     acregmax: numeric value
+#     acregmax >= acregmin
+
+assertError --err_message='The value entered for the "acregmin" option exceeds the value entered for "acregmax".' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='acregmax=10,acregmin=11'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m3 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f-_' mount_options='acregmax=10,acregmin=10'
+
+#     acdirmin: numeric value
+#     acdirmax: numeric value
+#     acdirmax >= acdirmin
+assertError --err_message='The value entered for the "acdirmin" option exceeds the value entered for "acdirmax".' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m4 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/fff' mount_options='acdirmax=10,acdirmin=11'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m4 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/fff' mount_options='acdirmax=10,acdirmin=10'
+
+# actimeo: numeric value
+assertError --err_type ValidationError --err_property "mount_options" --err_message='The "actimeo" option of property "mount_options" requires a numeric value.' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m5 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f2' mount_options='actimeo=3423a12134'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m5 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f2' mount_options='actimeo=342312134'
+
+# sec: one value from none,sys,krb5,krb5i,krb5p,lkey,lkeyp,spkm,spkmi,spkmp
+assertError --err_type ValidationError --err_property "mount_options" --err_message='"whatever" is an invalid "sec" value. Valid values are (none|sys|krb5|krb5i|krb5p|lkey|lkeyp|spkm|spkmi|spkmp)' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m6 -o provider='vs' mount_point='/tmp/*' network_name='n' export_path='/vx/f3' mount_options='sec=whatever'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m6 -o provider='vs' mount_point='/tmp/m1' network_name='n' export_path='/vx/f3' mount_options='sec=none'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m7 -o provider='vs' mount_point='/tmp/m2' network_name='n' export_path='/vx/f4' mount_options='sec=sys'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m8 -o provider='vs' mount_point='/tmp/m3' network_name='n' export_path='/vx/f5' mount_options='sec=krb5'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m9 -o provider='vs' mount_point='/tmp/m4' network_name='n' export_path='/vx/f6' mount_options='sec=krb5i'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m10 -o provider='vs' mount_point='/tmp/m5' network_name='n' export_path='/vx/f7' mount_options='sec=krb5p'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m11 -o provider='vs' mount_point='/tmp/m6' network_name='n' export_path='/vx/f8' mount_options='sec=lkey'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m12 -o provider='vs' mount_point='/tmp/m7' network_name='n' export_path='/vx/f9' mount_options='sec=lkeyp'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m13 -o provider='vs' mount_point='/tmp/m8' network_name='n' export_path='/vx/f10' mount_options='sec=spkm'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m14 -o provider='vs' mount_point='/tmp/m9' network_name='n' export_path='/vx/f11' mount_options='sec=spkmi'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m15 -o provider='vs' mount_point='/tmp/m10' network_name='n' export_path='/vx/f12' mount_options='sec=spkmp'
+
+# proto: udp,udp6,tcp,tcp6,rdma
+assertError --err_type ValidationError --err_property "mount_options" --err_message='"whatever" is an invalid "proto" value. Valid values are (udp|udp6|tcp|tcp6|rdma)' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m16 -o provider='vs' mount_point='/tmp/m11' network_name='n' export_path='/vx/f13' mount_options='proto=whatever'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m16 -o provider='vs' mount_point='/tmp/m11' network_name='n' export_path='/vx/f13' mount_options='proto=udp'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m17 -o provider='vs' mount_point='/tmp/m12' network_name='n' export_path='/vx/f13' mount_options='proto=udp6'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m18 -o provider='vs' mount_point='/tmp/m13' network_name='n' export_path='/vx/f13' mount_options='proto=tcp'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m19 -o provider='vs' mount_point='/tmp/m14' network_name='n' export_path='/vx/f13' mount_options='proto=tcp6'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m20 -o provider='vs' mount_point='/tmp/m15' network_name='n' export_path='/vx/f13' mount_options='proto=rdma'
+
+
+# lookupcache: one value from none,all,pos,positive
+assertError --err_type ValidationError --err_property "mount_options" --err_message='"whatever" is an invalid "lookupcache" option.' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m21 -o provider='vs' mount_point='/tmp/m16' network_name='n' export_path='/vx/f14' mount_options='lookupcache=whatever'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m21 -o provider='vs' mount_point='/tmp/m16' network_name='n' export_path='/vx/f14' mount_options='lookupcache=none'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m22 -o provider='vs' mount_point='/tmp/m17' network_name='n' export_path='/vx/f15' mount_options='lookupcache=all'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m23 -o provider='vs' mount_point='/tmp/m18' network_name='n' export_path='/vx/f16' mount_options='lookupcache=pos'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m24 -o provider='vs' mount_point='/tmp/m19' network_name='n' export_path='/vx/f17' mount_options='lookupcache=positive'
+
+# clientaddr: a valid IPv4 or IPv6 addresses
+assertError --err_type ValidationError --err_property "mount_options" --err_message='"clientaddr" option: "whatever" is an invalid ipv4 or ipv6 address.' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m26 -o provider='vs' mount_point='/tmp/m21' network_name='n' export_path='/vx/f14' mount_options='clientaddr=whatever'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m27 -o provider='vs' mount_point='/tmp/m22' network_name='n' export_path='/vx/f14' mount_options='clientaddr=1.1.1.1'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m25 -o provider='vs' mount_point='/tmp/m222' network_name='n' export_path='/vx/f14' mount_options='clientaddr=FE80:0000:0000:0000:0202:B3FF:FE1E:8329'
+
+# timeo: numeric value. Only with option "soft".
+assertError --err_type ValidationError --err_property "mount_options" --err_message='The "timeo" option of property "mount_options" requires a numeric value.' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m28 -o provider='vs' mount_point='/tmp/m23' network_name='n' export_path='/vx/f14' mount_options='timeo=whatever'
+assertError --err_type ValidationError --err_property "mount_options" --err_message='Unable to use the "timeo" option without the "soft" option in property "mount_options"' create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m28 -o provider='vs' mount_point='/tmp/m23' network_name='n' export_path='/vx/f14' mount_options='timeo=11117283471982347821'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m28 -o provider='vs' mount_point='/tmp/m23' network_name='n' export_path='/vx/f14' mount_options='timeo=00001,soft'
+
+# white space is allowed around commas & individual tokens; whitespace is not allowed around the '=' character.
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Invalid value 'clientaddr=1.1.1.1, soft,proto=tcp'." create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m29 -o provider='vs' mount_point='/tmp/m24' network_name='n' export_path='/vx/f14' mount_options='clientaddr=1.1.1.1, soft,proto=tcp'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Invalid value 'clientaddr=1.1.1.1 ,soft,proto=tcp'." create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m29 -o provider='vs' mount_point='/tmp/m24' network_name='n' export_path='/vx/f14' mount_options='clientaddr=1.1.1.1 ,soft,proto=tcp'
+assertError --err_type ValidationError --err_property "mount_options" --err_message="Invalid value 'clientaddr=1.1.1.1,soft,proto =tcp'." create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m29 -o provider='vs' mount_point='/tmp/m24' network_name='n' export_path='/vx/f14' mount_options='clientaddr=1.1.1.1,soft,proto =tcp'
+litp create -t nfs-mount -p /infrastructure/storage/nfs_mounts/m30 -o provider='vs' mount_point='/tmp/m24' network_name='n' export_path='/vx/f14' mount_options='  clientaddr=1.1.1.1,soft,proto=tcp '

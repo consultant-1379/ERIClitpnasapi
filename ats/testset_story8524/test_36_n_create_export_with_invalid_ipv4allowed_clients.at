@@ -1,0 +1,8 @@
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs1_init
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -t sfs-pool -o name=litp2
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test36 -t sfs-filesystem -o path='/vx/8524-fs1_test36' size='10M'
+
+litp export -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test36 -f /xml/test_36_n_create_export_with_invalid_ipv4allowed_clients.xml
+
+assertError --err_type ItemExistsError --err_vpath "/infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test36" --err_message 'Item /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test36 already exists' load -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems -f /xml/test_36_n_create_export_with_invalid_ipv4allowed_clients.xml
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message "Invalid value '10.46.71.25.47.24.87.54!74.87.41.41'" create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test36/exports/ex1_8524_test36 -t sfs-export -o ipv4allowed_clients='10.46.71.25.47.24.87.54!74.87.41.41' options='rw,no_root_squash'

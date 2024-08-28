@@ -1,0 +1,21 @@
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" management_ipv4="10.10.10.10"
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" user_name='support'
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" password_key='key-for-sfs'
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" user_name='support' password_key='support'
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" user_name='support' management_ipv4="10.44.86.236"
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" password_key='support' management_ipv4="10.10.10.10"
+
+assertError create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o password_key='support' management_ipv4="10.10.10.10"
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1" user_name='support' password_key='support' management_ipv4="10.10.10.10"
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sp2 -o name="sfs2"
+
+assertError update -p /infrastructure/storage/storage_providers/sp2 -o user_name='other' password_key='other'
+

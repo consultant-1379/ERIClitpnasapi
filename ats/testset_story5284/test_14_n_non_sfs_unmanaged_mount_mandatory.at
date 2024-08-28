@@ -1,0 +1,13 @@
+## Test that when creating a non_sfs_unmanaged_mount, the required properties, when not entered, throw up the correct error.
+
+let __err_a --err_type "MissingRequiredPropertyError" --err_property "name" --err_message 'ItemType "nfs-service" is required to have a property with name "name"'
+let __err_b --err_type "ValidationError" --err_property "ipv4address" --err_message 'Either property "ipv4address" or property "ipv6address" must be defined.'
+
+assertError __err_a __err_b create -p /infrastructure/storage/storage_providers/sp1_5284_test14 -t nfs-service
+
+let __err_a --err_type "MissingRequiredPropertyError" --err_property "mount_point" --err_message 'ItemType "nfs-mount" is required to have a property with name "mount_point"'
+let __err_b --err_type "MissingRequiredPropertyError" --err_property "provider" --err_message 'ItemType "nfs-mount" is required to have a property with name "provider"'
+let __err_c --err_type "MissingRequiredPropertyError" --err_property "network_name" --err_message 'ItemType "nfs-mount" is required to have a property with name "network_name"'
+let __err_d --err_type "MissingRequiredPropertyError" --err_property "export_path" --err_message 'ItemType "nfs-mount" is required to have a property with name "export_path"'
+
+assertError __err_a __err_b __err_c __err_d create -p /infrastructure/storage/nfs_mounts/nm1_5284_test14 -t nfs-mount

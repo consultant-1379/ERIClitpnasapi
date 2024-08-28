@@ -1,0 +1,11 @@
+## Test that creates an sfs-filesystem with an invalid snap_size
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sfs_service_sp1 -o name=sfs1_init
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -o name=litp2
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/cache_objects/cache_2840 -t sfs-cache -o name='2480_cache_test11'
+
+assertError --err_type "ValidationError" --err_property "snap_size" --err_message "Invalid value 'a'." create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test11 -t sfs-filesystem -o path='/vx/2480-fs1_test11' size='10G' cache_name='2480_cache_test11' snap_size='a'
+assertError --err_type "ValidationError" --err_property "snap_size" --err_message "Invalid value ''." create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test11 -t sfs-filesystem -o path='/vx/2480-fs1_test11' size='10G' cache_name='2480_cache_test11' snap_size=''
+assertError --err_type "ValidationError" --err_property "snap_size" --err_message "Invalid value '-12'." create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test11 -t sfs-filesystem -o path='/vx/2480-fs1_test11' size='10G' cache_name='2480_cache_test11' snap_size='-12'
+assertError --err_type "ValidationError" --err_property "snap_size" --err_message "Invalid value '?'." create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test11 -t sfs-filesystem -o path='/vx/2480-fs1_test11' size='10G' cache_name='2480_cache_test11' snap_size='?'

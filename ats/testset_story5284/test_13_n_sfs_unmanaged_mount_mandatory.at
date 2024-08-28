@@ -1,0 +1,25 @@
+## Test that when creating a sfs_unmanaged_mount, the required properties, when not entered, throw up the correct error
+
+assertError --err_type "MissingRequiredPropertyError" --err_property "name" --err_message 'ItemType "sfs-service" is required to have a property with name "name"' create -p /infrastructure/storage/storage_providers/sp1_5284 -t sfs-service
+
+litp create -p /infrastructure/storage/storage_providers/sp1_5284 -t sfs-service -o name='sfs'
+assertProperty /infrastructure/storage/storage_providers/sp1_5284 -o name='sfs'
+litp export -p /infrastructure/storage/storage_providers/sp1_5284  -f xml_story5284.xml
+
+litp update -p /infrastructure/storage/storage_providers/sp1_5284 -o name='xml_test'
+assertProperty /infrastructure/storage/storage_providers/sp1_5284 -o name='xml_test'
+
+litp load -p /infrastructure/storage/storage_providers -f xml_story5284.xml --replace
+assertProperty /infrastructure/storage/storage_providers/sp1_5284 -o name='sfs'
+
+let __err_a --err_type "MissingRequiredPropertyError" --err_property "ipv4address" --err_message 'ItemType "sfs-virtual-server" is required to have a property with name "ipv4address"'
+let __err_b --err_type "MissingRequiredPropertyError" --err_property "name" --err_message 'ItemType "sfs-virtual-server" is required to have a property with name "name"'
+
+assertError __err_a __err_b create -p /infrastructure/storage/storage_providers/sp1_5284/virtual_servers/vs1_5284_test13 -t sfs-virtual-server
+
+let __err_a --err_type "MissingRequiredPropertyError" --err_property "mount_point" --err_message 'ItemType "nfs-mount" is required to have a property with name "mount_point"'
+let __err_b --err_type "MissingRequiredPropertyError" --err_property "provider" --err_message 'ItemType "nfs-mount" is required to have a property with name "provider"'
+let __err_c --err_type "MissingRequiredPropertyError" --err_property "network_name" --err_message 'ItemType "nfs-mount" is required to have a property with name "network_name"'
+let __err_d --err_type "MissingRequiredPropertyError" --err_property "export_path" --err_message 'ItemType "nfs-mount" is required to have a property with name "export_path"'
+
+assertError __err_a __err_b __err_c __err_d create -p /infrastructure/storage/nfs_mounts/nm1_5284_test13 -t nfs-mount

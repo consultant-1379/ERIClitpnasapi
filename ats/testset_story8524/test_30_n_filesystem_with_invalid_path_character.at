@@ -1,0 +1,5 @@
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs1_init
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -t sfs-pool -o name=litp2
+
+assertError --err_type ValidationError --err_message 'The file system path "8524-fs1_test30!?" should contain alphanumeric characters, hyphens or underscores only.' --err_property "path" create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test30 -t sfs-filesystem -o path='/vx/8524-fs1_test30!?' size='10M'
+

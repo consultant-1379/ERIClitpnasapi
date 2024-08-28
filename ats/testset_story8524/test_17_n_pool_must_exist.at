@@ -1,0 +1,6 @@
+## Tests error is produced if attempt to add a sfs-filesystem to a sfs-service item
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs1_init
+
+assertError --err_type InvalidLocationError --err_message "Path not found" --err_vpath "/infrastructure/storage/storage_providers/sfs_service_sp1/file_systems/fs1_8524_test17" create -p /infrastructure/storage/storage_providers/sfs_service_sp1/file_systems/fs1_8524_test17 -t sfs-filesystem -o path='/vx/8524-fs1_test17' size='10M'
+

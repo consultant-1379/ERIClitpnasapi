@@ -1,0 +1,6 @@
+## Tests validation of export_path on nfs_mount type.
+
+litp create -p /infrastructure/storage/storage_providers/sp1_5284 -t nfs-service -o name='nfs1' ipv4address='10.59.139.101'
+
+assertError --err_type "ValidationError" --err_property "export_path" --err_message "Invalid value '/vx/ossrc1-file_system4?'." create -p /infrastructure/storage/nfs_mounts/nm1_5284_test17 -t nfs-mount -o export_path='/vx/ossrc1-file_system4?' network_name='mgmt' provider='nfs1' mount_point='/tmp/home/litp-admin/'nas_plugin_test
+assertError --err_type "ValidationError" --err_property "export_path" --err_message "Invalid value 'root/abc'." create -p /infrastructure/storage/nfs_mounts/nm1_5284_test17 -t nfs-mount -o export_path='root/abc' network_name='mgmt' provider='nfs1' mount_point=/tmp/home/litp-admin/nas_plugin_test

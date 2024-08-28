@@ -1,0 +1,8 @@
+## Test the creation of a cache with an invalid name to verify that this isn't possible
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sfs_service_sp1 -o name=sfs1_init
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -o name=litp2
+
+assertError --err_type "ValidationError" --err_property "name" --err_message 'Invalid value '\'2480_cache_test09?/\''. Accepts only alphanumeric characters and "-" and "_", minimum 1 maximum 25 characters.' create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/cache_objects/cache_2840 -t sfs-cache -o name='2480_cache_test09?/'
+
+assertError --err_type "ValidationError" --err_property "name" --err_message 'Invalid value '\'2480_cache_test09wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\''. Accepts only alphanumeric characters and "-" and "_", minimum 1 maximum 25 characters.' create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/cache_objects/cache_2840 -t sfs-cache -o name='2480_cache_test09wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww'

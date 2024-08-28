@@ -1,0 +1,4 @@
+assertError --err_type ValidationError --err_property "user_name" --err_message '"master" is not an allowed value' create -p /infrastructure/storage/storage_providers/sp1_8524_test14 -t sfs-service -o name='sfs' user_name='master' password_key='symantec'
+
+
+

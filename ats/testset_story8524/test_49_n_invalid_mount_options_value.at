@@ -1,0 +1,16 @@
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs1_init
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -t sfs-pool -o name=litp2
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49 -t sfs-filesystem -o path='/vx/8524-fs1_test49' size='10M'
+
+litp export -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49  -f /xml/test_49_n_invalid_mount_options_value_filesystem.xml
+assertError --err_type ItemExistsError --err_vpath "/infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49" --err_message 'Item /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49 already exists' load -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems -f /xml/test_49_n_invalid_mount_options_value_filesystem.xml
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49/exports/ex1_8524_test49 -t sfs-export -o ipv4allowed_clients='192.168.0.43' options='rw,no_root_squash'
+
+litp export -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49/exports/ex1_8524_test49  -f /xml/test_49_n_invalid_mount_options_value_export.xml
+assertError --err_type ItemExistsError --err_vpath "/infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49/exports/ex1_8524_test49" --err_message 'Item /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49/exports/ex1_8524_test49 already exists' load -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test49/exports  -f /xml/test_49_n_invalid_mount_options_value_export.xml
+
+assertError --err_type ValidationError --err_property "mount_options" --err_message '"invalid" is invalid' create -p /infrastructure/storage/nfs_mounts/nm1_8524_test49 -t nfs-mount -o export_path='/vx/8524-fs1_test49' network_name='mgmt' provider='virtserv1' mount_options='invalid' mount_point='/test1'
+
+
+

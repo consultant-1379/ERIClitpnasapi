@@ -1,0 +1,4 @@
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs_service_sp1
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/virtual_servers/vs1 -t sfs-virtual-server -o name=virtserv1 ipv4address=172.16.30.17
+
+assertError --err_type ValidationError --err_property "name" --err_message "Invalid value 'vsvr1_8524_test09??????'" create -p /infrastructure/storage/storage_providers/sfs_service_sp1/virtual_servers/vs1_8524_test09 -t sfs-virtual-server -o name=vsvr1_8524_test09?????? ipv4address='172.16.30.17'

@@ -1,0 +1,8 @@
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1 -t sfs-service -o name=sfs1_init
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -t sfs-pool -o name=litp2
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test37 -t sfs-filesystem -o path='/vx/8524-fs1_test37' size='10M'
+
+litp export -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test37 -f /xml/test_37_n_export_with_invalid_allowed_clients_not_ipv4s.xml
+
+assertError --err_type ItemExistsError --err_vpath "/infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test37" --err_message 'Item /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test37 already exists' load -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems -f /xml/test_37_n_export_with_invalid_allowed_clients_not_ipv4s.xml
+assertError --err_type ValidationError --err_property "ipv4allowed_clients" --err_message "Invalid value 'ipone,iptwo,ipthree'" create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8524_test37/exports/ex1_8524_test37 -t sfs-export -o ipv4allowed_clients='ipone,iptwo,ipthree' options='rw,no_root_squash'

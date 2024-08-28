@@ -1,0 +1,7 @@
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sp1 -o name="sfs1"
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sp1/pools/p1 -o name="pool1"
+litp create -t sfs-filesystem -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/fs1 -o path="/vx/some" size="1024M" snap_size="100" cache_name="my_cache"
+litp create -t sfs-export -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/fs1/exports/ex1 -o ipv4allowed_clients="10.10.10.50" options='rw,no_root_squash'
+
+let __err_1 --err_message '"abc" is an invalid option.' --err_type ValidationError
+assertError __err_1 update -p /infrastructure/storage/storage_providers/sp1/pools/p1/file_systems/fs1/exports/ex1 -o ipv4allowed_clients="10.10.10.50" options='sync,abc'

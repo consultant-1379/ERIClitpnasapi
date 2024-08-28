@@ -1,0 +1,9 @@
+## Test that creates an sfs-filesystem with an invalid cache_name to verify that it is not possible
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sfs_service_sp1 -o name=sfs1_init
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -o name=litp2
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/cache_objects/cache_2840 -t sfs-cache -o name='2480_cache_test10'
+
+assertError --err_type "ValidationError" --err_property "cache_name" --err_message 'Invalid value '\'2480_cache_test10?/\''. Accepts only alphanumeric characters and "-" and "_", minimum 1 maximum 25 characters.' create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test10 -t sfs-filesystem -o path='/vx/2480-fs1_test10' size='10G' cache_name='2480_cache_test10?/' snap_size='10'
+assertError --err_type "ValidationError" --err_property "cache_name" --err_message 'Invalid value '\'2480_cache_test10wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\''. Accepts only alphanumeric characters and "-" and "_", minimum 1 maximum 25 characters.' create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_2480_test10 -t sfs-filesystem -o path='/vx/2480-fs1_test10' size='10G' cache_name='2480_cache_test10wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww' snap_size='10'

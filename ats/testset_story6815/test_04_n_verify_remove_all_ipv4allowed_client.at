@@ -1,0 +1,10 @@
+## Test that tries to remove all the ips from an export
+
+litpcrypt set key-for-sfs support symantec
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sfs_service_sp1 -o name=sfs1_init management_ipv4=172.16.30.17 user_name=support password_key=key-for-sfs
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -o name=litp2
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_6815_test04 -t sfs-filesystem -o path='/vx/6815-fs1_test04' size='10M'
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_6815_test04/exports/ex1_6815_test04 -t sfs-export -o ipv4allowed_clients='192.168.0.43' options='rw,no_root_squash'
+
+assertError --err_type "ValidationError" --err_property "ipv4allowed_clients" --err_message "Invalid value ''." update -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_6815_test04/exports/ex1_6815_test04 -o ipv4allowed_clients=' '

@@ -1,0 +1,1 @@
+assertError --err_type ValidationError --err_message 'If the sfs-service is managed, the following properties should be added: property "user_name", property "password_key". If the sfs-service is unmanaged, use only the property "name"' create -p /infrastructure/storage/storage_providers/sp1_8524_test12 -t sfs-service -o name='sfs' management_ipv4='192.168.0.42'

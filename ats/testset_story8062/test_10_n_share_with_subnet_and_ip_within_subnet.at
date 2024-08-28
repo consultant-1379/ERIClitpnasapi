@@ -1,0 +1,8 @@
+## Test that creates an export with a subnet and an ip within the subnet
+
+litp create -t sfs-service -p /infrastructure/storage/storage_providers/sfs_service_sp1 -o name=sfs1_init management_ipv4=172.16.30.17 user_name=support password_key=key-for-sfs
+litp create -t sfs-pool -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1 -o name=litp2
+
+litp create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8062_test10 -t sfs-filesystem -o path='/vx/8062-fs1_test10' size='10M'
+
+assertError --err_type "ValidationError" --err_property "ipv4allowed_clients" --err_message 'IP address "192.168.0.43" overlaps with subnet "192.168.0.0/16".' create -p /infrastructure/storage/storage_providers/sfs_service_sp1/pools/sfs_pool1/file_systems/fs1_8062_test10/exports/ex1_8062_test10 -t sfs-export -o ipv4allowed_clients='192.168.0.0/16,192.168.0.43' options='rw,no_root_squash'

@@ -1,0 +1,6 @@
+## Test that when creating an unmanaged_mount, when creating the nfs_mount, it should fail
+
+litp create -p /infrastructure/storage/storage_providers/sp1_5284_test18 -t sfs-service -o name='sfs'
+
+assertError --err_type "ValidationError" --err_property "mount_point" --err_message "Invalid value '/tmp/home/litp-admin/?nas_plugin_test'." create -p /infrastructure/storage/nfs_mounts/nm1_5284_test18 -t nfs-mount -o export_path='/vx/ossrc1-file_system4' network_name='mgmt' provider='virtserv1' mount_point=/tmp/home/litp-admin/?nas_plugin_test
+assertError --err_type "ValidationError" --err_property "export_path" --err_message "Invalid value 'root/ossrc1-file_system4'." create -p /infrastructure/storage/nfs_mounts/nm1_5284_test18 -t nfs-mount -o export_path='root/ossrc1-file_system4' network_name='mgmt' provider='vsvr1' mount_point=/nas_plugin_test
